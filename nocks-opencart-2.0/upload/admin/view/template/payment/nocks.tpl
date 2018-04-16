@@ -89,7 +89,7 @@
                                         <label class="col-sm-2 control-label" for="<?php echo $code; ?>_status"><?php echo $entry_status; ?></label>
                                         <div class="col-sm-10">
                                             <select name="stores[<?php echo $shop['id']; ?>][<?php echo $code; ?>_status]" id="<?php echo $code; ?>_status" class="form-control">
-                                                <?php if ($stores[$shop['id']]['<?php echo $code; ?>_status']) { ?>
+                                                <?php if ($stores[$shop['id']][$code . '_status']) { ?>
                                                 <option value="1" selected="selected"><?php echo $text_enabled; ?></option>
                                                 <option value="0"><?php echo $text_disabled; ?></option>
                                                 <?php } else { ?>
@@ -170,7 +170,7 @@
                                             <select name="stores[<?php echo $shop['id']; ?>][<?php echo $code; ?>_completed_status_id]" id="<?php echo $code; ?>_completed_status_id" class="form-control">
                                                 <?php foreach ($order_statuses as $order_status) { ?>
                                                 <?php if ($order_status['order_status_id'] == $stores[$shop['id']][$code . '_completed_status_id']) { ?>
-                                                <option value="<?php $order_status['order_status_id']; ?>" selected="selected"><?php echo $order_status['name']; ?></option>
+                                                <option value="<?php echo $order_status['order_status_id']; ?>" selected="selected"><?php echo $order_status['name']; ?></option>
                                                 <?php } else { ?>
                                                 <option value="<?php echo $order_status['order_status_id']; ?>"><?php echo $order_status['name']; ?></option>
                                                 <?php } ?>

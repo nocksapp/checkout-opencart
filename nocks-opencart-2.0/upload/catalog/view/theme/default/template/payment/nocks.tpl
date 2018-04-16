@@ -6,7 +6,7 @@
 <script type="text/javascript">
     $('#button-confirm').on('click', function() {
         $.ajax({
-            url: 'index.php?route=<?php echo $redirect_route; ?>t',
+            url: 'index.php?route=<?php echo $redirect_route; ?>',
             dataType: 'json',
             beforeSend: function() {
                 $('#button-confirm').button('loading');
