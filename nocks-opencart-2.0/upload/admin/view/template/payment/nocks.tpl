@@ -49,6 +49,20 @@
 
                             <div class="tab-content">
                                 <div id="nocks-config-<?php echo $shop['id']; ?>" class="tab-pane fade in active">
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label" for="<?php echo $code; ?>_test_mode"><?php echo $entry_test_mode; ?></label>
+                                        <div class="col-sm-10">
+                                            <select name="stores[<?php echo $shop['id']; ?>][<?php echo $code; ?>_test_mode]" id="<?php echo $code; ?>_test_mode" class="form-control">
+                                                <?php if ($stores[$shop['id']][$code . '_test_mode']) { ?>
+                                                <option value="1" selected="selected"><?php echo $text_enabled; ?></option>
+                                                <option value="0"><?php echo $text_disabled; ?></option>
+                                                <?php } else { ?>
+                                                <option value="1"><?php echo $text_enabled; ?></option>
+                                                <option value="0" selected="selected"><?php echo $text_disabled; ?></option>
+                                                <?php } ?>
+                                            </select>
+                                        </div>
+                                    </div>
                                     <div class="form-group required">
                                         <label class="col-sm-2 control-label" for="<?php echo $code; ?>_api_key"><?php echo $entry_api_key; ?></label>
                                         <div class="col-sm-10">
