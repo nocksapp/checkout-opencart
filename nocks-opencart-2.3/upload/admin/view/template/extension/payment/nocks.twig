@@ -47,6 +47,20 @@
 
                                 <div class="tab-content">
                                     <div id="nocks-config-{{ shop.id }}" class="tab-pane fade in active">
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label" for="{{ code }}_test_mode">{{ entry_test_mode }}</label>
+                                            <div class="col-sm-10">
+                                                <select name="stores[{{ shop.id }}][{{ code }}_test_mode]" id="{{ code }}_status" class="form-control">
+                                                    {% if stores[shop.id][code ~ '_test_mode'] %}
+                                                        <option value="1" selected="selected">{{ text_enabled }}</option>
+                                                        <option value="0">{{ text_disabled }}</option>
+                                                    {% else %}
+                                                        <option value="1">{{ text_enabled }}</option>
+                                                        <option value="0" selected="selected">{{ text_disabled }}</option>
+                                                    {% endif %}
+                                                </select>
+                                            </div>
+                                        </div>
                                         <div class="form-group required">
                                             <label class="col-sm-2 control-label" for="{{ code }}_api_key">{{ entry_api_key }}</label>
                                             <div class="col-sm-10">
@@ -206,10 +220,10 @@
         var getMerchantsUrl = $('<div/>').html('{{ get_merchants_url }}').text();
         var stores = JSON.parse('{{ stores|json_encode() }}');
 
-        function getMerchants(key) {
+        function getMerchants(key, testMode) {
             if (xhr) xhr.abort();
 
-            xhr = $.get(getMerchantsUrl + '&key=' + key);
+            xhr = $.get(getMerchantsUrl + '&key=' + key + '&testmode=' + testMode);
 
             return xhr;
         }
@@ -222,15 +236,16 @@
                 return;
             }
 
+            var $tab = $container.closest('.tab-pane');
+
             clearTimeout(timeout);
             timeout = setTimeout(function () {
                 updateIcon(iconContainer, 'fa-spinner fa-spin', null);
 
-                getMerchants(value).then(function (response) {
+                getMerchants(value, $tab.find('#nocks_test_mode').val()).then(function (response) {
                     if (response.success) {
                         updateIcon(iconContainer, 'fa-check text-success');
                         // Set merchants in select
-                        $tab = $container.closest('.tab-pane');
                         var shopId = $tab.attr('id').slice(-1);
 
                         // Remove errors
@@ -273,6 +288,18 @@
             validateApiKey(this.value, $(this));
         }).each(function () {
             validateApiKey(this.value, $(this));
+        });
+
+        $('#nocks_test_mode').on('change', function () {
+            var $tab = $(this).closest('.tab-pane');
+            var $container = $tab.find('#nocks_api_key');
+
+            validateApiKey($container.val(), $container);
+        }).each(function () {
+            var $tab = $(this).closest('.tab-pane');
+            var $container = $tab.find('#nocks_api_key');
+
+            validateApiKey($container.val(), $container);
         });
     })();
 </script>

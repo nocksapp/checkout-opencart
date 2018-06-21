@@ -2,11 +2,35 @@
 
 
 class NocksApi {
-	protected $url = 'https://api.nocks.com/api/v2/';
+	protected $url;
+	protected $testMode;
 	protected $accessToken;
 
-	public function __construct($accessToken) {
+	public function __construct($accessToken, $testMode = false) {
+		$this->url = $testMode ? 'https://sandbox.nocks.com/api/v2/' : 'https://api.nocks.com/api/v2/';
+		$this->testMode = $testMode;
 		$this->accessToken = $accessToken;
+	}
+
+	/**
+	 * Get the scopes
+	 *
+	 * @return array
+	 */
+	public function getScopes() {
+		$apiUrl = $this->url;
+		$this->url = $this->testMode ? 'https://sandbox.nocks.com/oauth/' : 'https://www.nocks.com/oauth/';
+
+		$response = $this->call('token-scopes', null);
+		$this->url = $apiUrl;
+
+		if ($response === null) {
+			return [];
+		}
+
+		return array_map(function($scope) {
+			return $scope['id'];
+		}, $response);
 	}
 
 	/**
@@ -72,6 +96,7 @@ class NocksApi {
 			}
 
 			$header = [
+				'Accept: application/json',
 				'Content-Type: application/json',
 				'Content-Length: ' . $length,
 				'Authorization: Bearer ' . $this->accessToken

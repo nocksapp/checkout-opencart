@@ -8,6 +8,7 @@ $_['main_config_title'] = 'Instellingen';
 $_['status_config_title'] = 'Statussen';
 $_['about_title'] = 'Over';
 
+$_['test_mode'] = 'Test mode';
 $_['api_key'] = 'API Key';
 $_['merchant'] = 'Merchant';
 $_['payment'] = 'Payment';
@@ -24,5 +25,6 @@ $_['completed_status'] = 'Betaald';
 $_['successfully_saved'] = 'De instellingen zijn opgeslagen';
 
 $_['error_permission'] = 'Toegangsfout';
-$_['error_api_key'] = 'Geldige API key is verplicht';
+$_['error_api_key'] = 'Geldige API key is verplicht, zorg ervoor dat de API key de juiste scopes heeft';
+$_['error_api_key_no_merchants'] = 'Aan deze API key zijn geen merchants gekoppeld';
 $_['error_merchant'] = 'Merchant is verplicht';

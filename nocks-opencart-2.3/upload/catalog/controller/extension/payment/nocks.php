@@ -26,6 +26,7 @@ class ControllerExtensionPaymentNocks extends Controller {
 	public function start_payment() {
 		$code = NocksHelper::getModuleCode();
 		$accessToken = $this->config->get($code . '_api_key');
+		$testMode = $this->config->get($code . '_test_mode') === '1';
 		$orderId = $this->session->data['order_id'];
 		$json = [];
 
@@ -35,7 +36,7 @@ class ControllerExtensionPaymentNocks extends Controller {
 			$order = $this->model_checkout_order->getOrder($orderId);
 			$amount = $this->currency->convert($order['total'], $this->config->get('config_currency'), 'EUR');
 
-			$api = new NocksApi($accessToken);
+			$api = new NocksApi($accessToken, $testMode);
 			$response = $api->createTransaction([
 				'merchant_profile' => $this->config->get($code . '_merchant'),
 				'source_currency' => 'NLG',
@@ -58,7 +59,7 @@ class ControllerExtensionPaymentNocks extends Controller {
 				                 . $response['data']['uuid'] . '" WHERE `order_id` = "' . $orderId . '"');
 
 				// Build Nocks redirect url
-				$json['redirect'] = 'https://nocks.com/payment/url/' . $response['data']['payments']['data'][0]['uuid'];
+				$json['redirect'] = $response['data']['payments']['data'][0]['metadata']['url'];
 			}
 		}
 
@@ -75,6 +76,7 @@ class ControllerExtensionPaymentNocks extends Controller {
 
 		$code = NocksHelper::getModuleCode();
 		$accessToken = $this->config->get($code . '_api_key');
+		$testMode = $this->config->get($code . '_test_mode') === '1';
 
 		$orderId = $this->request->get['order_id'];
 		$order = $this->model_checkout_order->getOrder($orderId);
@@ -84,7 +86,7 @@ class ControllerExtensionPaymentNocks extends Controller {
 			$results = $this->db->query('SELECT `nocks_transaction_id` FROM `' . DB_PREFIX . 'order` WHERE `order_id` = "' . $orderId . '"');
 			if ($results->num_rows) {
 				// Get the transaction
-				$api = new NocksApi($accessToken);
+				$api = new NocksApi($accessToken, $testMode);
 				$transaction = $api->getTransaction($results->row['nocks_transaction_id']);
 				if ($transaction) {
 					if ($transaction['status'] === 'completed') {
@@ -115,13 +117,14 @@ class ControllerExtensionPaymentNocks extends Controller {
 
 		$code = NocksHelper::getModuleCode();
 		$accessToken = $this->config->get($code . '_api_key');
+		$testMode = $this->config->get($code . '_test_mode') === '1';
 
 		$this->response->addHeader('Content-Type: application/json');
 		$transactionId = file_get_contents('php://input');
 
 		if ($transactionId && $accessToken) {
 			// Get the transaction
-			$api = new NocksApi($accessToken);
+			$api = new NocksApi($accessToken, $testMode);
 			$transaction = $api->getTransaction($transactionId);
 
 			if ($transaction) {
