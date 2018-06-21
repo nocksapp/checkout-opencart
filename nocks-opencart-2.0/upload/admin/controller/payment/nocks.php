@@ -76,6 +76,7 @@ class ControllerPaymentNocks extends Controller
 		$data['status_config_title'] = $this->language->get('status_config_title');
 		$data['about_title'] = $this->language->get('about_title');
 
+		$data['entry_test_mode'] = $this->language->get('test_mode');
 		$data['entry_api_key'] = $this->language->get('api_key');
 		$data['entry_merchant'] = $this->language->get('merchant');
 		$data['entry_payment'] = $this->language->get('payment');
@@ -146,6 +147,7 @@ class ControllerPaymentNocks extends Controller
 
 		// Default settings
 		$settings = [
+			$code . '_test_mode' => false,
 			$code . '_api_key' => null,
 			$code . '_merchant' => null,
 			$code . '_pending_status_id' => 1,
@@ -175,9 +177,8 @@ class ControllerPaymentNocks extends Controller
 		$this->renderTemplate('nocks', $data, ['header', 'column_left', 'footer']);
 	}
 
-	private function getMerchantOptions($accessToken) {
+	private function getMerchantOptions($api) {
 		// Retrieve the merchants by the key
-		$api = new NocksApi($accessToken);
 		$merchants = $api->getMerchants();
 
 		if (!$merchants) {
@@ -202,25 +203,53 @@ class ControllerPaymentNocks extends Controller
 		return $options;
 	}
 
+	private function validateScopes($scopes) {
+		$requiredScopes = ['merchant.read', 'transaction.create', 'transaction.read'];
+		$requiredAccessTokenScopes = array_filter($scopes, function($scope) use ($requiredScopes) {
+			return in_array($scope, $requiredScopes);
+		});
+
+		return sizeof($requiredAccessTokenScopes) === sizeof($requiredScopes);
+	}
+
 	public function get_merchants() {
+		$this->load->language(NocksHelper::getPath());
+
 		$this->response->addHeader('Content-Type: application/json');
 
 		// Check key is given in request
 		if (empty($this->request->get['key'])) {
 			$this->response->setOutput(json_encode([
 				'success' => false,
-				'message' => 'Invalid api key',
+				'message' => $this->language->get('error_api_key'),
 			]));
 
 			return;
 		}
 
-		$merchants = $this->getMerchantOptions($this->request->get['key']);
+		$accessToken = $this->request->get['key'];
+		$testMode = $this->request->get['testmode'] === '1';
+
+		$api = new NocksApi($accessToken, $testMode);
+
+		// Validate scopes
+		$scopes = $api->getScopes();
+		if (!$this->validateScopes($scopes)) {
+			$this->response->setOutput(json_encode([
+				'success' => false,
+				'message' => $this->language->get('error_api_key'),
+			]));
+
+			return;
+		}
+
+		// Get merchant options
+		$merchants = $this->getMerchantOptions($api);
 
 		if (!$merchants) {
 			$this->response->setOutput(json_encode([
 				'success' => false,
-				'message' => 'Invalid api key',
+				'message' => $this->language->get('error_api_key_no_merchants'),
 			]));
 
 			return;
@@ -246,24 +275,37 @@ class ControllerPaymentNocks extends Controller
 		}
 
 		if (!isset($this->request->post['stores'][$store][$code . '_api_key'])
-			|| !$this->request->post['stores'][$store][$code . '_api_key']) {
+		    || !$this->request->post['stores'][$store][$code . '_api_key']) {
 			$this->errors[$store]['api_key'] = $this->language->get('error_api_key');
+		} else if (!isset($this->request->post['stores'][$store][$code . '_test_mode'])) {
+			$this->errors[$store]['test_mode'] = $this->language->get('error_test_mode');
 		} else {
-			$merchantOptions = $this->getMerchantOptions($this->request->post['stores'][$store][$code . '_api_key']);
-			if (!$merchantOptions) {
-				// Invalid api key
+			$accessToken = $this->request->post['stores'][$store][$code . '_api_key'];
+			$testMode = $this->request->post['stores'][$store][$code . '_test_mode'];
+			$api = new NocksApi($accessToken, $testMode);
+
+			// Check scopes
+			$scopes = $api->getScopes();
+			if (!$this->validateScopes($scopes)) {
 				$this->errors[$store]['api_key'] = $this->language->get('error_api_key');
 			} else {
-				$merchantIds = array_map(function($option) {
-					return $option['value'];
-				}, $merchantOptions);
+				// Check merchant
+				$merchantOptions = $this->getMerchantOptions($api);
+				if (!$merchantOptions) {
+					// Invalid api key
+					$this->errors[$store]['api_key'] = $this->language->get('error_api_key_no_merchants');
+				} else {
+					$merchantIds = array_map(function($option) {
+						return $option['value'];
+					}, $merchantOptions);
 
-				// Check the merchant is set
-				if (!isset($this->request->post['stores'][$store][$code . '_merchant'])
-				    || !$this->request->post['stores'][$store][$code . '_merchant']
-				    || !in_array($this->request->post['stores'][$store][$code . '_merchant'], $merchantIds)) {
+					// Check the merchant is set
+					if (!isset($this->request->post['stores'][$store][$code . '_merchant'])
+					    || !$this->request->post['stores'][$store][$code . '_merchant']
+					    || !in_array($this->request->post['stores'][$store][$code . '_merchant'], $merchantIds)) {
 
-					$this->errors[$store]['merchant'] = $this->language->get('error_merchant');
+						$this->errors[$store]['merchant'] = $this->language->get('error_merchant');
+					}
 				}
 			}
 		}

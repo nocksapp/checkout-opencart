@@ -49,6 +49,20 @@
 
                             <div class="tab-content">
                                 <div id="nocks-config-<?php echo $shop['id']; ?>" class="tab-pane fade in active">
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label" for="<?php echo $code; ?>_test_mode"><?php echo $entry_test_mode; ?></label>
+                                        <div class="col-sm-10">
+                                            <select name="stores[<?php echo $shop['id']; ?>][<?php echo $code; ?>_test_mode]" id="<?php echo $code; ?>_test_mode" class="form-control">
+                                                <?php if ($stores[$shop['id']][$code . '_test_mode']) { ?>
+                                                <option value="1" selected="selected"><?php echo $text_enabled; ?></option>
+                                                <option value="0"><?php echo $text_disabled; ?></option>
+                                                <?php } else { ?>
+                                                <option value="1"><?php echo $text_enabled; ?></option>
+                                                <option value="0" selected="selected"><?php echo $text_disabled; ?></option>
+                                                <?php } ?>
+                                            </select>
+                                        </div>
+                                    </div>
                                     <div class="form-group required">
                                         <label class="col-sm-2 control-label" for="<?php echo $code; ?>_api_key"><?php echo $entry_api_key; ?></label>
                                         <div class="col-sm-10">
@@ -170,7 +184,7 @@
                                             <select name="stores[<?php echo $shop['id']; ?>][<?php echo $code; ?>_completed_status_id]" id="<?php echo $code; ?>_completed_status_id" class="form-control">
                                                 <?php foreach ($order_statuses as $order_status) { ?>
                                                 <?php if ($order_status['order_status_id'] == $stores[$shop['id']][$code . '_completed_status_id']) { ?>
-                                                <option value="<?php echo $order_status['order_status_id']; ?>" selected="selected"><?php echo $order_status['name']; ?></option>
+                                                <option value="<?php $order_status['order_status_id']; ?>" selected="selected"><?php echo $order_status['name']; ?></option>
                                                 <?php } else { ?>
                                                 <option value="<?php echo $order_status['order_status_id']; ?>"><?php echo $order_status['name']; ?></option>
                                                 <?php } ?>
@@ -208,16 +222,15 @@
         var getMerchantsUrl = $('<div/>').html('<?php echo $get_merchants_url; ?>').text();
         var stores = JSON.parse('<?php echo json_encode($stores); ?>');
 
-        function getMerchants(key) {
+        function getMerchants(key, testMode) {
             if (xhr) xhr.abort();
 
-            xhr = $.get(getMerchantsUrl + '&key=' + key);
+            xhr = $.get(getMerchantsUrl + '&key=' + key + '&testmode=' + testMode);
 
             return xhr;
         }
 
         function validateApiKey(value, $container) {
-            console.log(value);
             var iconContainer = $container.siblings('.input-group-addon');
 
             if (value === '') {
@@ -225,15 +238,16 @@
                 return;
             }
 
+            var $tab = $container.closest('.tab-pane');
+
             clearTimeout(timeout);
             timeout = setTimeout(function () {
                 updateIcon(iconContainer, 'fa-spinner fa-spin', null);
 
-                getMerchants(value).then(function (response) {
+                getMerchants(value, $tab.find('#nocks_test_mode').val()).then(function (response) {
                     if (response.success) {
                         updateIcon(iconContainer, 'fa-check text-success');
                         // Set merchants in select
-                        $tab = $container.closest('.tab-pane');
                         var shopId = $tab.attr('id').slice(-1);
 
                         // Remove errors
@@ -276,6 +290,18 @@
             validateApiKey(this.value, $(this));
         }).each(function () {
             validateApiKey(this.value, $(this));
+        });
+
+        $('#nocks_test_mode').on('change', function () {
+            var $tab = $(this).closest('.tab-pane');
+            var $container = $tab.find('#nocks_api_key');
+
+            validateApiKey($container.val(), $container);
+        }).each(function () {
+            var $tab = $(this).closest('.tab-pane');
+            var $container = $tab.find('#nocks_api_key');
+
+            validateApiKey($container.val(), $container);
         });
     })();
 </script>
