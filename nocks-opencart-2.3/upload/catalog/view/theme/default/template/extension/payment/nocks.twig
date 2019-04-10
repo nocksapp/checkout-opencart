@@ -1,5 +1,15 @@
-<div class="buttons">
-    <div class="pull-right">
+<div class="buttons" style="flex-direction:column;display:flex;align-items:flex-end;">
+    {% if issuers is not empty %}
+        <div style="margin-bottom:1em">
+            <select name="nocks_ideal_issuer" id="nocks_ideal_issuer">
+                <option value="">{{ text_select_your_bank }}</option>
+                {% for key,label in issuers %}
+                    <option value="{{ key }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    {% endif %}
+    <div>
         <input type="button" value="{{ button_confirm }}" id="button-confirm" data-loading-text="{{ text_loading }}" class="btn btn-primary" />
     </div>
 </div>
@@ -7,6 +17,9 @@
     $('#button-confirm').on('click', function() {
         $.ajax({
             url: 'index.php?route={{ redirect_route }}',
+            data: {
+                issuer: $('#nocks_ideal_issuer').val()
+            },
             dataType: 'json',
             beforeSend: function() {
                 $('#button-confirm').button('loading');
