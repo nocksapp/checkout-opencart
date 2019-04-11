@@ -62,7 +62,10 @@ abstract class NocksPaymentCatalogController extends Controller {
 				'callback_url' => html_entity_decode($this->url->link($this->path . '/payment_callback', '', true)),
 				'metadata' => [
 					'order_id' => $orderId,
+					'nocks_plugin' => 'opencart-' .  (NocksHelper::isOpenCart23x() ? '2.3' : '2.0') . ':' . NocksHelper::PLUGIN_VERSION,
+					'opencart_version' => VERSION,
 				],
+				'description' => $orderId . ' - ' . $this->config->get('config_name'),
 			];
 
 			if ($this->sourceCurrency) {
