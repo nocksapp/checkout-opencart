@@ -5,16 +5,25 @@ $_['text_nocks_gulden'] = $methodLogo;
 $_['text_nocks_ideal'] = $methodLogo;
 $_['text_nocks_sepa'] = $methodLogo;
 $_['text_nocks_balance'] = $methodLogo;
+$_['text_nocks_bitcoin'] = $methodLogo;
+$_['text_nocks_litecoin'] = $methodLogo;
+$_['text_nocks_ethereum'] = $methodLogo;
 
 $_['heading_title_gulden'] = 'Nocks Gulden';
 $_['heading_title_ideal'] = 'Nocks iDEAL';
 $_['heading_title_sepa'] = 'Nocks SEPA';
 $_['heading_title_balance'] = 'Nocks Balance';
+$_['heading_title_bitcoin'] = 'Nocks Bitcoin';
+$_['heading_title_litecoin'] = 'Nocks Litecoin';
+$_['heading_title_ethereum'] = 'Nocks Ethereum';
 
 $_['checkout_title_gulden'] = 'Gulden';
 $_['checkout_title_ideal'] = 'iDEAL';
 $_['checkout_title_sepa'] = 'SEPA';
 $_['checkout_title_balance'] = 'Nocks Balance';
+$_['checkout_title_bitcoin'] = 'Bitcoin';
+$_['checkout_title_litecoin'] = 'Litecoin';
+$_['checkout_title_ethereum'] = 'Ethereum';
 
 $_['nocks_config_title'] = 'Nocks Instellingen';
 $_['main_config_title'] = 'Instellingen';
@@ -25,6 +34,9 @@ $_['payment_method_gulden'] = 'Gulden';
 $_['payment_method_ideal'] = 'iDEAL';
 $_['payment_method_sepa'] = 'SEPA';
 $_['payment_method_balance'] = 'Nocks Balance';
+$_['payment_method_bitcoin'] = 'Bitcoin';
+$_['payment_method_litecoin'] = 'Litecoin';
+$_['payment_method_ethereum'] = 'Ethereum';
 
 $_['text_select_your_bank'] = 'Selecteer je bank';
 

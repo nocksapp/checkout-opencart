@@ -2,7 +2,7 @@
 
 class NocksHelper
 {
-	const PLUGIN_VERSION = '1.2.0';
+	const PLUGIN_VERSION = '1.3.0';
 
 	/**
 	 * @return bool
@@ -76,6 +76,15 @@ class NocksHelper
 			],
 			[
 				'id' => 'balance',
+			],
+			[
+				'id' => 'bitcoin',
+			],
+			[
+				'id' => 'litecoin',
+			],
+			[
+				'id' => 'ethereum',
 			]
 		];
 	}
