@@ -14,18 +14,21 @@
     </div>
 </div>
 <script type="text/javascript">
-    $('#button-confirm').on('click', function() {
+    var $button = $('#button-confirm');
+    var $issuerSelect = $('#nocks_ideal_issuer');
+
+    $button.on('click', function() {
         $.ajax({
             url: 'index.php?route={{ redirect_route }}',
             data: {
-                issuer: $('#nocks_ideal_issuer').val()
+                issuer: $issuerSelect.val()
             },
             dataType: 'json',
             beforeSend: function() {
-                $('#button-confirm').button('loading');
+                $button.button('loading');
             },
             complete: function() {
-                $('#button-confirm').button('reset');
+                $button.button('reset');
             },
             success: function(json) {
                 if (json['redirect']) {
@@ -37,4 +40,13 @@
             }
         });
     });
+
+    if ($issuerSelect.length) {
+        var handleButtonDisable = function() {
+            $button.attr('disabled', $issuerSelect.val() === '');
+        };
+
+        $issuerSelect.change(handleButtonDisable);
+        handleButtonDisable();
+    }
 </script>
